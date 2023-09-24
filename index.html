@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://kit.fontawesome.com/e674bba739.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="music-player">
+            <nav>
+                <div class="circle">
+                    <i class="fa-solid fa-angle-left"></i>
+                </div>
+                <div class="circle">
+                    <i class="fa-solid fa-bars"></i>
+                </div>
+            </nav>
+            <img class="song-thumbail" src="media/music.jpg" alt="">
+            <h1>Ignite</h1>
+            <p>Ft. Julie Bergan & Seungri</p>
+            <audio id="song">
+                <source src="media/new_song.mp3" type="audio/mpeg">
+            </audio>
+            <input type="range" value="0" id="progress">
+            <div id="songTiming">
+                <span id="currentTime">0:00</span> / <span id="totalDuration">0:00</span>
+            </div>
+            <div class="controls">
+                <div><i class="fa-solid fa-backward"></i></div>
+                <div onclick="playPause()"><i class="fa-solid fa-play" id="ctrlIcon"></i></div>
+                <div><i id="forwardIcon" class="fa-solid fa-forward"></i></div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    let progress = document.getElementById("progress");
+    let song = document.getElementById("song");
+    let ctrlIcon = document.getElementById("ctrlIcon");
+    let currentTimeDisplay = document.getElementById("currentTime");
+    let totalDurationDisplay = document.getElementById("totalDuration");
+
+    song.onloadedmetadata = function () {
+        progress.max = song.duration;
+        progress.value = song.currentTime;
+        updateSongTiming(); // Initialize song timing display
+    };
+
+    function updateSongTiming() {
+        let currentTime = Math.floor(song.currentTime);
+        let totalDuration = Math.floor(song.duration);
+
+        // Format the time in mm:ss format
+        let currentTimeFormatted = formatTime(currentTime);
+        let totalDurationFormatted = formatTime(totalDuration);
+
+        currentTimeDisplay.textContent = currentTimeFormatted;
+        totalDurationDisplay.textContent = totalDurationFormatted;
+    }
+
+    function formatTime(seconds) {
+        let minutes = Math.floor(seconds / 60);
+        let remainingSeconds = seconds % 60;
+        return minutes + ":" + (remainingSeconds < 10 ? "0" : "") + remainingSeconds;
+    }
+
+    function playPause() {
+        if (ctrlIcon.classList.contains("fa-pause")) {
+            song.pause();
+            ctrlIcon.classList.remove("fa-pause");
+            ctrlIcon.classList.add("fa-play");
+        } else {
+            song.play();
+            ctrlIcon.classList.add("fa-pause");
+            ctrlIcon.classList.remove("fa-play");
+            // Start the interval to update the progress and time
+            updateInterval = setInterval(updateProgressAndTime, 500);
+        }
+    }
+
+    function updateProgressAndTime() {
+        progress.value = song.currentTime;
+        updateSongTiming();
+    }
+
+    progress.onchange = function () {
+        song.currentTime = progress.value;
+        updateSongTiming();
+    }
+
+    song.addEventListener("ended", function () {
+        ctrlIcon.classList.remove("fa-pause");
+        ctrlIcon.classList.add("fa-play");
+        clearInterval(updateInterval); // Stop the interval when the song ends
+    });
+
+</script>
+
+</html>
